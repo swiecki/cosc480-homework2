@@ -2,14 +2,26 @@
 
 class MoviesController < ApplicationController
   def index
+#session stuff TODO: change editing of params variable to redirects
+    if !params.has_key?("ratings")
+      if session.has_key?("ratings")
+        params[:ratings] = session[:ratings]
+      end
+    else
+      session[:ratings] = params[:ratings]
+    end
+    if !params.has_key?("sort")
+      if session.has_key?("sort")
+        params[:sort] = session[:sort]
+      end
+    else
+      session[:sort] = params[:sort]
+    end
+#take care of sorted stuff
     if params.has_key?("current_sort")
       srt = params[:current_sort].to_s
     else
       srt = params[:sort].to_s
-    end
-#take care of sorted stuff
-    if srt != "release_date" && srt != "title"
-      srt = nil
     end
 #take care of ratings stuff
     if !params.has_key?("ratings")
@@ -18,6 +30,9 @@ class MoviesController < ApplicationController
     else
       crates = params[:ratings]
       rates = params[:ratings].keys
+    end
+    if srt != "release_date" && srt != "title"
+      srt = nil
     end
 #make our query
     @movies = Movie.where(:rating => rates).order(srt)
