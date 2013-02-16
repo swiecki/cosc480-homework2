@@ -2,13 +2,30 @@
 
 class MoviesController < ApplicationController
   def index
-    sortby = params[:sort]
-    if sortby != nil
-      @movies = Movie.all(:order => "#{sortby} ASC")
-      @highlight = params[:sort].to_s
+    if params.has_key?("current_sort")
+      srt = params[:current_sort].to_s
     else
-      @movies = Movie.all
+      srt = params[:sort].to_s
     end
+#take care of sorted stuff
+    if srt != "release_date" && srt != "title"
+      srt = nil
+    end
+#take care of ratings stuff
+    if !params.has_key?("ratings")
+      crates = Movie.hratings
+      rates = Movie.ratings
+    else
+      crates = params[:ratings]
+      rates = params[:ratings].keys
+    end
+#make our query
+    @movies = Movie.where(:rating => rates).order(srt)
+#set other stuff
+    @all_ratings = Movie.ratings  
+    @highlight = srt
+    @current_sort = srt
+    @current_ratings = crates
   end
 
   def show
