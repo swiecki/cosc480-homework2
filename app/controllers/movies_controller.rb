@@ -2,7 +2,13 @@
 
 class MoviesController < ApplicationController
   def index
-    @movies = Movie.all
+    sortby = params[:sort]
+    if sortby != nil
+      @movies = Movie.all(:order => "#{sortby} ASC")
+      @highlight = params[:sort].to_s
+    else
+      @movies = Movie.all
+    end
   end
 
   def show
