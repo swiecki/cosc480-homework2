@@ -2,20 +2,33 @@
 
 class MoviesController < ApplicationController
   def index
-#session stuff TODO: change editing of params variable to redirects
+#session stuff
+  needredirect = false
+  redirecthash = {}
     if !params.has_key?("ratings")
       if session.has_key?("ratings")
-        params[:ratings] = session[:ratings]
+        needredirect = true
+        redirecthash[:ratings] = session[:ratings]
       end
     else
       session[:ratings] = params[:ratings]
     end
-    if !params.has_key?("sort")
+    if !params.has_key?("sort") && !params.has_key?("current_sort")
       if session.has_key?("sort")
-        params[:sort] = session[:sort]
+        needredirect = true
+        redirecthash[:sort] = session[:sort]
       end
     else
-      session[:sort] = params[:sort]
+      if params.has_key?("sort")
+        session[:sort] = params[:sort]
+      else
+        session[:sort] = params[:current_sort]
+      end
+    end
+#if should redirect, do it.
+    if needredirect
+      flash.keep
+      redirect_to movies_path(redirecthash.merge(params))
     end
 #take care of sorted stuff
     if params.has_key?("current_sort")
